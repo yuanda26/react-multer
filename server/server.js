@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
   }
 });
 
-// Initialize Upload Var
+// Initialize single Upload Method
 const upload = multer({
   storage: storage,
   limits: {
@@ -27,6 +27,16 @@ const upload = multer({
     checkFileType(file, callback);
   }
 }).single("upload");
+
+const uploads = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter: (req, file, callback) => {
+    checkFileType(file, callback);
+  }
+}).array("uploads");
 
 // Check File Type Function
 checkFileType = (file, callback) => {
@@ -46,17 +56,27 @@ checkFileType = (file, callback) => {
   }
 };
 
-app.get("/", (req, res, next) => {
-  res.send("Hello World");
-});
+// Root Route
+app.get("/", (req, res, next) => {});
 
+// Single Upload Route
 app.post("/upload", (req, res, next) => {
   upload(req, res, err => {
     if (err) {
       console.log(err);
     } else {
-      res.json();
-      console.log(req.file);
+      res.send(req.file);
+    }
+  });
+});
+
+// Multiple Uploads Route
+app.post("/uploads", (req, res, next) => {
+  uploads(req, res, err => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(req.files);
     }
   });
 });
